@@ -20,8 +20,8 @@ class RagInput(BaseModel):
     extra_instruction: str = ''
 
 
-@app.get('/')
-def root():
+@app.get('/health')
+def health():
     return {'status': 'ok'}
 
 

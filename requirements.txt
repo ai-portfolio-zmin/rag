@@ -3,3 +3,4 @@ dotenv
 pypandoc
 google-genai
 fastapi
+uvicorn

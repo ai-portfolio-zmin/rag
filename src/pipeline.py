@@ -1,5 +1,5 @@
 from src.retrieval.client import HybridRetriever
-from src.config import CONFIGS, BASE_SYSTEM_PROMPT
+from src.config import CONFIGS, BASE_SYSTEM_PROMPT, GEMINI_API_KEY
 from google import genai
 from src.util import build_context
 from dotenv import load_dotenv
@@ -26,7 +26,7 @@ class RagPipeline:
             raise ValueError(f'config for {corpus} not available')
         self.retriever = HybridRetriever(base_url=self.config.base_url,
                                          corpus=corpus)
-        self.client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+        self.client = genai.Client(api_key=GEMINI_API_KEY)
 
     def answer(self, query, extra_instruction=''):
         logger.info(f'question: {query}. Extra instruction: {extra_instruction}')
