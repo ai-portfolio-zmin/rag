@@ -1,16 +1,17 @@
-RAG Assistant 
+### RAG Assistant 
 
-This repository implements a production-oriented Retrieval-Augmented Generation (RAG) service that sits on top of an external hybrid search service (BM25 + embeddings + FAISS + cross-encoder reranking).
+This repository implements a Retrieval-Augmented Generation (RAG) service that sits on top of an external hybrid search service (BM25 + embeddings + FAISS + cross-encoder reranking).
 
-The goal of this project is to demonstrate real-world RAG architecture, not a notebook demo:
+The goal of this project is to demonstrate RAG architecture:
 
-Search infrastructure is a separate service
+- Search infrastructure is a separate service
 
-RAG is an API layer that consumes search results over HTTP
+- RAG is an API layer that consumes search results over HTTP
 
-The system is configurable, reproducible, and deployable
+- The system is configurable, reproducible, and deployable
 
-High-level Architecture
+#### High-level Architecture
+```
 Client / UI
     │
     ▼
@@ -20,32 +21,34 @@ POST /answer
     ▼
 Hybrid Search API (external service)
 BM25 + Embeddings + FAISS + Cross-Encoder
+```
 
-Key idea:
+#### Key idea:
 
-This repo does not build or store indexes
+- This repo does not build or store indexes
 
-All retrieval happens via an external mixed-search service
+- All retrieval happens via an external mixed-search service
 
-This mirrors production systems 
+- This mirrors production systems 
 
-Features
+#### Features
 
-Corpus-aware RAG (fastapi, more can be added)
+- Corpus-aware RAG (fastapi, more can be added)
 
-Hybrid retrieval (BM25 + semantic) via external API
+- Hybrid retrieval (BM25 + semantic) via external API
 
-Cross-encoder reranking (handled by search service)
+- Cross-encoder reranking (handled by search service)
 
-Deterministic chunk-based context with citations
+- Deterministic chunk-based context with citations
 
-Config-driven pipelines per corpus
+- Config-driven pipelines per corpus
 
-FastAPI-based HTTP API
+- FastAPI-based HTTP API
 
-Gemini (Google GenAI) as LLM backend
+- Gemini (Google GenAI) as LLM backend
 
-Project Structure
+#### Project Structure
+```
 api/
   api.py                # FastAPI application
 
@@ -71,42 +74,43 @@ data/
 
 .env                     # Environment variables (API keys)
 requirements.txt
+```
 
 
+#### Data Flow
 
-Data Flow
+- Offline ingestion (example: FastAPI docs)
 
-Offline ingestion (example: FastAPI docs)
+- Markdown → cleaned text
 
-Markdown → cleaned text
+- Chunked with overlap
 
-Chunked with overlap
-
-Written as JSONL for search indexing
-
-
-Hybrid search service (external)
-
-Builds BM25 + embedding + FAISS indices
-
-Applies cross-encoder reranking
-
-Exposes /retrieve endpoint
+- Written as JSONL for search indexing
 
 
-RAG pipeline (this repo)
+#### Hybrid search service (external)
 
-Calls hybrid-search over HTTP
+- Builds BM25 + embedding + FAISS indices
 
-Receives ranked chunks
+- Applies cross-encoder reranking
 
-Builds structured context with citations
+- Exposes /retrieve endpoint
 
-Calls LLM
 
-Returns answer + traceable sources
+#### RAG pipeline (this repo)
 
-API
+- Calls hybrid-search over HTTP
+
+- Receives ranked chunks
+
+- Builds structured context with citations
+
+- Calls LLM
+
+- Returns answer + traceable sources
+
+#### API
+```
 Health Check
 GET /
 
@@ -123,6 +127,7 @@ Request body:
   "query": "How do I define a request body with Pydantic models?",
   "extra_instruction": ""
 }
+
 
 Response:
 
@@ -150,34 +155,35 @@ Sources: [2], [3], [5]",
     {...}
   ]
 }
+```
 
 The contexts field enables full traceability and citation mapping.
 
-Configuration
+#### Configuration
 
 Corpus-specific configuration lives in src/config.py:
 
-base_url – hybrid-search API URL
+- base_url – hybrid-search API URL
 
-top_k – number of retrieved chunks
+- top_k – number of retrieved chunks
 
-rerank – whether to request reranking
+- rerank – whether to request reranking
 
-model – LLM model name
+- model – LLM model name
 
-domain_instruction – corpus-specific prompt guidance
+- domain_instruction – corpus-specific prompt guidance
 
-Adding a new corpus requires no pipeline changes — just config.
+- Adding a new corpus requires no pipeline changes — just config.
 
 
-Environment Variables
+#### Environment Variables
 
 Create a .env file:
 
 GEMINI_API_KEY=your_api_key_here
 
 
-Running Locally
+#### Running Locally
 1. Start the hybrid-search service
 
 Make sure the external mixed-search API is running, for example:
@@ -193,42 +199,27 @@ Then open:
 http://localhost:8002/docs
 
 
-Design Principles
+#### Design Principles
 
-Separation of concerns: search ≠ reasoning
+- Separation of concerns: search ≠ reasoning
 
-Corpus-agnostic RAG: all corpus logic is config-driven
+- Corpus-agnostic RAG: all corpus logic is config-driven
 
-Stateless API: no index ownership in RAG
+- Stateless API: no index ownership in RAG
 
-Traceability: every answer maps back to chunks
+- Traceability: every answer maps back to chunks
 
-Production realism: HTTP boundaries, not imports
-
-
-Future Improvements
-
-Structured evaluation harness
-
-Request-level tracing and metrics
-
-Docker + docker-compose deployment
-
-Auth & rate limiting
-
-Streaming responses
+- Production realism: HTTP boundaries, not imports
 
 
-Why this project matters
 
-This repo demonstrates how real RAG systems are built in practice, not just in tutorials:
+This repo demonstrates:
 
-Dedicated retrieval infrastructure
+- Dedicated retrieval infrastructure
 
-Clean API contracts
+- Clean API contracts
 
-Deterministic chunking
+- Deterministic chunking
 
-Observability-friendly design
+- Observability-friendly design
 
-It’s intentionally simple — but architecturally correct.
